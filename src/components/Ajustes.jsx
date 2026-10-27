@@ -1,10 +1,27 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../supabase.js'
 import { Campo, Modal, inputCls } from './ui.jsx'
+
+function haceMinutos(iso) {
+  const min = Math.round((Date.now() - new Date(iso)) / 60000)
+  if (min < 1) return 'recién'
+  if (min < 60) return `hace ${min} min`
+  const h = Math.round(min / 60)
+  return h < 48 ? `hace ${h} h` : `hace ${Math.round(h / 24)} días`
+}
 
 export default function Ajustes({ autos, email, onCerrar, onGuardado }) {
   const [valores, setValores] = useState(() => Object.fromEntries(autos.map((a) => [a.id, a.supers_por_infinia])))
   const [error, setError] = useState('')
+  const [sync, setSync] = useState(null)
+
+  useEffect(() => {
+    supabase
+      .from('bitacora_sync')
+      .select('*')
+      .maybeSingle()
+      .then(({ data }) => setSync(data))
+  }, [])
   const [password, setPassword] = useState('')
   const [avisoPass, setAvisoPass] = useState('')
 
@@ -50,6 +67,18 @@ export default function Ajustes({ autos, email, onCerrar, onGuardado }) {
         <button onClick={guardar} className="w-full rounded-xl bg-slate-900 py-3 font-semibold text-white">
           Guardar
         </button>
+        {sync && (
+          <div className="rounded-xl bg-slate-50 p-3 text-sm">
+            <p className="font-medium">Mails de la App YPF</p>
+            {sync.error ? (
+              <p className="text-red-600">No se pudo revisar el mail: {sync.error}</p>
+            ) : (
+              <p className="text-slate-500">
+                {sync.ultima_ok ? `Revisado ${haceMinutos(sync.ultima_ok)}. Se revisa solo cada hora.` : 'Todavía no se revisó.'}
+              </p>
+            )}
+          </div>
+        )}
         <form onSubmit={cambiarPassword} className="space-y-2 border-t border-slate-100 pt-4">
           <Campo etiqueta="Contraseña (para entrar desde el ícono del celu)">
             <input
