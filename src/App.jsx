@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from './supabase.js'
 import { calcularConsumos, consumoPromedio, gastoDelMes, kmActual, proximosMantenimientos, sugerirNafta } from './lib/logica.js'
-import Login from './components/Login.jsx'
+import Login, { NuevaPassword } from './components/Login.jsx'
 import Inicio from './components/Inicio.jsx'
 import Cargas from './components/Cargas.jsx'
 import Mantenimiento from './components/Mantenimiento.jsx'
@@ -17,15 +17,20 @@ const PESTANAS = [
 
 export default function App() {
   const [session, setSession] = useState(undefined) // undefined = cargando
+  const [recuperando, setRecuperando] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
-    const { data } = supabase.auth.onAuthStateChange((_evento, s) => setSession(s))
+    const { data } = supabase.auth.onAuthStateChange((evento, s) => {
+      if (evento === 'PASSWORD_RECOVERY') setRecuperando(true)
+      setSession(s)
+    })
     return () => data.subscription.unsubscribe()
   }, [])
 
   if (session === undefined) return <Cargando />
   if (!session) return <Login />
+  if (recuperando) return <NuevaPassword onListo={() => setRecuperando(false)} />
   return <Bitacora session={session} />
 }
 

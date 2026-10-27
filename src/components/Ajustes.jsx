@@ -5,6 +5,17 @@ import { Campo, Modal, inputCls } from './ui.jsx'
 export default function Ajustes({ autos, email, onCerrar, onGuardado }) {
   const [valores, setValores] = useState(() => Object.fromEntries(autos.map((a) => [a.id, a.supers_por_infinia])))
   const [error, setError] = useState('')
+  const [password, setPassword] = useState('')
+  const [avisoPass, setAvisoPass] = useState('')
+
+  async function cambiarPassword(e) {
+    e.preventDefault()
+    setAvisoPass('')
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) return setAvisoPass(error.message)
+    setPassword('')
+    setAvisoPass('Listo, contraseña guardada.')
+  }
 
   async function guardar() {
     for (const a of autos) {
@@ -39,6 +50,22 @@ export default function Ajustes({ autos, email, onCerrar, onGuardado }) {
         <button onClick={guardar} className="w-full rounded-xl bg-slate-900 py-3 font-semibold text-white">
           Guardar
         </button>
+        <form onSubmit={cambiarPassword} className="space-y-2 border-t border-slate-100 pt-4">
+          <Campo etiqueta="Contraseña (para entrar desde el ícono del celu)">
+            <input
+              type="password"
+              required
+              minLength={6}
+              placeholder="Nueva contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={inputCls}
+              autoComplete="new-password"
+            />
+          </Campo>
+          <button className="w-full rounded-xl bg-slate-100 py-2.5 font-semibold text-slate-700">Guardar contraseña</button>
+          {avisoPass && <p className="text-sm text-slate-600">{avisoPass}</p>}
+        </form>
         <div className="border-t border-slate-100 pt-4 text-sm text-slate-500">
           Entraste como {email}.{' '}
           <button onClick={() => supabase.auth.signOut()} className="font-medium text-red-600 underline">
