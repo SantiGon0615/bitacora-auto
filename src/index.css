@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-infinia: #2563eb;
+  --color-infinia-suave: #dbeafe;
+  --color-super: #059669;
+  --color-super-suave: #d1fae5;
+}
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  background: #f1f5f9;
+  color: #0f172a;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Inputs más cómodos en el celular (16px evita el zoom de iOS) */
+input, select, textarea {
+  font-size: 16px;
+}
