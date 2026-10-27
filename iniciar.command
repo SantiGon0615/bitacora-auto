@@ -14,6 +14,13 @@ fi
 
 echo "Node $(node -v) / npm $(npm -v)"
 
+# Una sola vez: recrear los archivos del repo con el usuario de esta Mac
+# (los que se copiaron desde Claude pueden quedar sin permiso de escritura)
+if [ -d .git ] && [ ! -f .git/.permisos-ok ] && command -v git >/dev/null 2>&1; then
+  echo "Acomodando permisos de los archivos (solo la primera vez)..."
+  git rm -r --cached -q . && git reset --hard -q && touch .git/.permisos-ok
+fi
+
 # Traer la última versión del repo (sin pisar cambios locales)
 if [ -d .git ] && command -v git >/dev/null 2>&1; then
   echo "Buscando actualizaciones en GitHub..."
