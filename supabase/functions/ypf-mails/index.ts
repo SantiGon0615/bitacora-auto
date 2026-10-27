@@ -101,8 +101,9 @@ async function rpc(nombre: string, args: Record<string, unknown>) {
     headers: { apikey: clave, Authorization: `Bearer ${clave}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(args),
   })
-  if (!r.ok) throw new Error(`${nombre}: ${r.status} ${await r.text()}`)
-  return r.json()
+  const texto = await r.text()
+  if (!r.ok) throw new Error(`${nombre}: ${r.status} ${texto}`)
+  return texto ? JSON.parse(texto) : null // las funciones void responden vacío
 }
 
 Deno.serve(async (req) => {
