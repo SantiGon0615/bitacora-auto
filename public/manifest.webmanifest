@@ -1,9 +1,10 @@
 {
   "name": "Bitácora de autos",
   "short_name": "Bitácora",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f1f5f9",
   "theme_color": "#0f172a",
-  "icons": [{ "src": "/icono.svg", "sizes": "any", "type": "image/svg+xml" }]
+  "icons": [{ "src": "icono.svg", "sizes": "any", "type": "image/svg+xml" }]
 }

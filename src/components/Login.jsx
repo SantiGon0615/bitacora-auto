@@ -12,7 +12,7 @@ export default function Login() {
     setEstado('enviando')
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: window.location.origin + window.location.pathname },
     })
     if (error) {
       setError(error.message)
@@ -25,7 +25,7 @@ export default function Login() {
   return (
     <div className="flex min-h-dvh items-center justify-center p-6">
       <div className="w-full max-w-sm">
-        <img src="/icono.svg" alt="" className="mb-6 h-14 w-14" />
+        <img src={`${import.meta.env.BASE_URL}icono.svg`} alt="" className="mb-6 h-14 w-14" />
         <h1 className="text-3xl font-bold tracking-tight">Bitácora de autos</h1>
         <p className="mt-2 text-slate-500">Cargas de nafta y mantenimiento de la familia.</p>
 
