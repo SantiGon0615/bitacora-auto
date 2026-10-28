@@ -133,13 +133,14 @@ Deno.serve(async (req) => {
       const { literales } = await imap.cmd(`UID FETCH ${uid} (BODY.PEEK[])`)
       if (!literales[0]) continue
       resumen.revisados++
-      const { messageId, carga } = leerMail(literales[0])
+      const { messageId, momento, carga } = leerMail(literales[0])
       if (!carga) continue
       const nuevo = await rpc('bitacora_registrar_mail', {
         p_mail_id: messageId ?? `yahoo-uid-${uid}`,
         p_fecha: carga.fecha,
         p_producto: carga.producto,
         p_tipo: carga.tipo,
+        p_momento: momento,
       })
       if (nuevo) {
         resumen.nuevos++

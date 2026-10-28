@@ -2,7 +2,7 @@ import { TIPOS_MANT, TIPOS_NAFTA } from '../config.js'
 import { fechaCorta, haceCuanto, kms, pesos } from '../lib/logica.js'
 import { BadgeNafta, Tarjeta } from './ui.jsx'
 
-export default function Inicio({ auto, sugerencia, pendientes, autos, kmHoy, consumoProm, gastoMes, proximos, onNuevaCarga, onCompletar, onAsignar, onVerMant }) {
+export default function Inicio({ auto, sugerencia, ultimas, pendientes, autos, kmHoy, consumoProm, gastoMes, proximos, onNuevaCarga, onCompletar, onAsignar, onDescartar, onVerMant }) {
   const toca = sugerencia ? TIPOS_NAFTA[sugerencia.toca] : null
 
   return (
@@ -18,8 +18,18 @@ export default function Inicio({ auto, sugerencia, pendientes, autos, kmHoy, con
               {sugerencia.alternativa && ` · también podés ir con ${TIPOS_NAFTA[sugerencia.alternativa].nombre}`}
             </p>
             <div className="mt-5 rounded-2xl bg-white/15 px-4 py-3 text-sm">
-              Última carga: <b>{TIPOS_NAFTA[sugerencia.ultima.tipo].nombre}</b>, {haceCuanto(sugerencia.ultima.fecha)}
-              {sugerencia.ultima.quien && ` · ${sugerencia.ultima.quien}`}
+              <p className="mb-1.5 opacity-80">Últimas cargas</p>
+              <ul className="space-y-1">
+                {ultimas.map((c, i) => (
+                  <li key={c.id} className="flex items-center gap-2">
+                    <b className="w-16">{TIPOS_NAFTA[c.tipo]?.nombre ?? c.tipo}</b>
+                    <span className="opacity-90">{i === 0 ? haceCuanto(c.fecha) : fechaCorta(c.fecha)}</span>
+                    <span className="ml-auto text-xs opacity-75">
+                      {[c.litros && `${Number(c.litros)} l`, c.auto_detectado && 'Bluetooth', c.quien].filter(Boolean).join(' · ')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </>
         ) : (
@@ -40,13 +50,16 @@ export default function Inicio({ auto, sugerencia, pendientes, autos, kmHoy, con
       {pendientes.length > 0 && (
         <Tarjeta className="border-2 border-amber-300">
           <h3 className="font-semibold">Cargas por asignar</h3>
-          <p className="mb-3 text-sm text-slate-500">Llegaron de la App YPF. ¿En qué auto fueron?</p>
+          <p className="mb-3 text-sm text-slate-500">Llegaron de la App YPF y no estabas conectado a ningún auto. ¿De cuál fueron?</p>
           <ul className="space-y-3">
             {pendientes.map((p) => (
               <li key={p.id} className="rounded-2xl bg-slate-50 p-3">
                 <div className="mb-2 flex items-center gap-2">
                   <BadgeNafta tipo={p.tipo} chico />
-                  <span className="text-sm text-slate-600">{fechaCorta(p.fecha)}</span>
+                  <span className="text-sm text-slate-600">
+                    {fechaCorta(p.fecha)}
+                    {p.momento && ` ${new Date(p.momento).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`}
+                  </span>
                   <button onClick={() => onCompletar(p)} className="ml-auto text-sm text-slate-500 underline">
                     completar
                   </button>
@@ -57,7 +70,11 @@ export default function Inicio({ auto, sugerencia, pendientes, autos, kmHoy, con
                       {a.nombre}
                     </button>
                   ))}
+                  <button onClick={() => onDescartar(p)} className="flex-1 rounded-xl bg-white py-2 text-sm font-semibold text-slate-400 shadow-sm">
+                    Fue moto
+                  </button>
                 </div>
+                {p.tipo === 'SUPER' && <p className="mt-2 text-xs text-slate-500">Es Súper: seguro fue de un auto (las motos van con Infinia).</p>}
               </li>
             ))}
           </ul>

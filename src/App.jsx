@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from './supabase.js'
-import { calcularConsumos, consumoPromedio, gastoDelMes, kmActual, proximosMantenimientos, sugerirNafta } from './lib/logica.js'
+import { calcularConsumos, consumoPromedio, gastoDelMes, kmActual, ordenarDesc, proximosMantenimientos, sugerirNafta } from './lib/logica.js'
 import Login, { NuevaPassword } from './components/Login.jsx'
 import Inicio from './components/Inicio.jsx'
 import Cargas from './components/Cargas.jsx'
@@ -86,6 +86,7 @@ function Bitacora({ session }) {
       mantsAuto,
       kmHoy,
       sugerencia: sugerirNafta(cargasAuto, auto.supers_por_infinia),
+      ultimas: ordenarDesc(cargasAuto.filter((c) => c.tipo !== 'OTRO')).slice(0, 3),
       consumoProm: consumoPromedio(calcularConsumos(cargasAuto)),
       gastoMes: gastoDelMes(cargasAuto),
       proximos: proximosMantenimientos(mantsAuto, kmHoy),
@@ -96,6 +97,13 @@ function Bitacora({ session }) {
 
   const cerrarYRecargar = () => {
     setModal(null)
+    recargar()
+  }
+
+  async function descartar(carga) {
+    // El mail ya quedó registrado como procesado, así que no vuelve a aparecer
+    const { error } = await supabase.from('bitacora_cargas').delete().eq('id', carga.id)
+    if (error) alert(error.message)
     recargar()
   }
 
@@ -149,6 +157,7 @@ function Bitacora({ session }) {
             onNuevaCarga={(tipo) => setModal({ tipo: 'carga', tipoSugerido: tipo })}
             onCompletar={(c) => setModal({ tipo: 'carga', carga: c })}
             onAsignar={asignar}
+            onDescartar={descartar}
             onVerMant={() => setPestana('mant')}
           />
         )}

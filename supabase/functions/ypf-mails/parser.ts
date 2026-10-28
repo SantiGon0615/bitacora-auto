@@ -115,9 +115,13 @@ export function extraerCarga(texto: string): CargaMail | null {
 }
 
 /** raw: mensaje completo como bytes */
-export function leerMail(bytes: Uint8Array): { messageId: string | null; carga: CargaMail | null } {
+export function leerMail(bytes: Uint8Array): { messageId: string | null; momento: string | null; carga: CargaMail | null } {
   const raw = latin1.decode(bytes)
   const { headers } = separarHeaders(raw)
   const texto = textoPlano(textoDe(raw))
-  return { messageId: headers.get('message-id') ?? null, carga: extraerCarga(texto) }
+  // Hora en que YPF mandó el mail (minutos después de la compra): sirve para saber en qué auto estabas
+  const fechaHeader = headers.get('date')
+  const d = fechaHeader ? new Date(fechaHeader) : null
+  const momento = d && !isNaN(d.getTime()) ? d.toISOString() : null
+  return { messageId: headers.get('message-id') ?? null, momento, carga: extraerCarga(texto) }
 }

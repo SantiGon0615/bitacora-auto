@@ -54,9 +54,8 @@ export const kms = (n) => (n == null ? '—' : `${Math.round(n).toLocaleString('
 
 /** Orden: más nueva primero (por fecha y, dentro del día, por hora de carga en la app) */
 export function ordenarDesc(lista) {
-  return [...lista].sort(
-    (a, b) => b.fecha.localeCompare(a.fecha) || (b.created_at ?? '').localeCompare(a.created_at ?? ''),
-  )
+  const hora = (c) => c.momento ?? c.created_at ?? ''
+  return [...lista].sort((a, b) => b.fecha.localeCompare(a.fecha) || hora(b).localeCompare(hora(a)))
 }
 
 /**
